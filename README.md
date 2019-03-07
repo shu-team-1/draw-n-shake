@@ -17,6 +17,7 @@ Provide different brushes for users to choose from, either using presets, custom
 Front-end to allow users to select/change brushes
 
 ## Futher Implementations
+* Shake to clear drawing
 * Save states: save the progress of a drawing, and allow users to return to it later
 * Saving: save their drawings
 * Sharing: share drawing from the app
