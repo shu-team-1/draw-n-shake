@@ -11,7 +11,7 @@ Implement the canvas for the user to draw on
 Use touch controls for simple testing
 ### 2. Tilt-based controls
 Switch the drawing method to tilt controls
-### 3.2 'Brush' customisation
+### 3.1 'Brush' customisation
 Provide different brushes for users to choose from, either using presets, customisable brushes, or both
 ### 3.2 UI for brush selection
 Front-end to allow users to select/change brushes
