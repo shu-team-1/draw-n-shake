@@ -9,11 +9,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="uk.team_1.draw_n_shake.MainActivity">
+        <activity android:name="uk.team_1.draw_n_shake.CanvasActivity">
             <intent-filter>
+                <!-- default activity -->
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
+                <!-- shuts up AS, TODO: find out what this mean -->
+                <action android:name="android.intent.action.VIEW"/>
             </intent-filter>
         </activity>
     </application>
