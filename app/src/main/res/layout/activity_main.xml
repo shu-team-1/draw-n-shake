@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.b8022626.draw_n_shake.MainActivity">
+    tools:context="uk.team_1.draw_n_shake.MainActivity">
 
     <TextView
         android:layout_width="wrap_content"
