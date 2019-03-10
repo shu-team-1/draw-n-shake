@@ -12,6 +12,12 @@ public class CanvasActivity extends AppCompatActivity {
         setContentView(R.layout.activity_canvas);
 
         View window = getWindow().getDecorView(); // android host window
-        window.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN); // set activity to fullscreen
+
+        // uses bitwise OR to combine flags
+        window.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | // hide nav buttons
+                View.SYSTEM_UI_FLAG_FULLSCREEN        // hide status bar
+        );
+
     }
 }
