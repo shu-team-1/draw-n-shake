@@ -6,7 +6,7 @@
 
 ## Timeline
 ### 1. Drawable canvas
-Implement the canvas for the user to draw on
+~~Implement the canvas for the user to draw on~~
 
 Use touch controls for simple testing
 ### 2. Tilt-based controls
