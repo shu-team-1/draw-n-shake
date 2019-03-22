@@ -19,6 +19,8 @@ import android.view.View;
 import java.util.Timer;
 import java.util.TimerTask;
 
+//TODO: Move to CanvasVIew
+
 public class CanvasActivity extends AppCompatActivity implements SensorEventListener {
     //--------------------Creating the canvas-------------------------------------------------------
     private CanvasView sketchPad; //creating the canvas
@@ -27,6 +29,7 @@ public class CanvasActivity extends AppCompatActivity implements SensorEventList
     private int etchDrawRadius = 5;
     private float etchX;
     private float etchY;
+    private int movmentSpeed = 10;
     //----------------------------------------------------------------------------------------------
     //-----------------------sensor variables--------------------------------------------------------
     private Timer timer;
@@ -90,30 +93,25 @@ public class CanvasActivity extends AppCompatActivity implements SensorEventList
             @Override
             public void run() {
 
+                //TODO: implement logic to only move in straight lines, bunch of switches probably
 
-                if (tiltX > tiltY)
-                {
                     if (tiltX < 0)
                     {
-                        tiltX += 5;
+                        tiltX += movmentSpeed;
                     }
                     else
                     {
-                        tiltX -= 5;
+                        tiltX -= movmentSpeed;
                     }
-                }
-                else
-                {
+
                     if ( tiltY < 100)
                     {
-                        etchY += 5;
+                        etchY += movmentSpeed;
                     }
                     else
                     {
-                        etchY -= 5;
+                        etchY -= movmentSpeed;
                     }
-                }
-
             handler.sendEmptyMessage(0);
             }
         }, 0, 100); //this code will get executed every 100ms
@@ -122,10 +120,12 @@ public class CanvasActivity extends AppCompatActivity implements SensorEventList
     }
     //----------------------------sensor events----------------------------------------------------
     @Override
-    public void onSensorChanged(SensorEvent sensorEvent) //sents information whenever sensor data
+    public void onSensorChanged(SensorEvent sensorEvent) //sends information whenever sensor data
     {                                                   // changes
 
         Sensor tiltSensor = sensorEvent.sensor;
+
+        //TODO: Implement shake to clear
 
         if (tiltSensor.getType() == Sensor.TYPE_ACCELEROMETER)
         {
@@ -157,6 +157,7 @@ public class CanvasActivity extends AppCompatActivity implements SensorEventList
     //-------------------------Creating a paintable area-------------------------------------------
     private class CanvasView extends View
     {
+        //TODO: Add trail to the dot, so it actually sketches not just etches
         private Paint etch;
 
         public CanvasView (Context context)
