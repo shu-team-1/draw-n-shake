@@ -32,7 +32,7 @@ public class CanvasActivity extends AppCompatActivity implements SensorEventList
     private int movmentSpeed = 10;
     //----------------------------------------------------------------------------------------------
     //-----------------------sensor variables--------------------------------------------------------
-    private Timer timer;
+    private Timer timer = new Timer();
     private Handler handler; //as timer tasks are not allowed to call other objects directly
 
 
