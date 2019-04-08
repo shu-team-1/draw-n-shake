@@ -15,170 +15,160 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Display;
 import android.view.View;
-
 import java.util.Timer;
 import java.util.TimerTask;
 
-//TODO: Move to CanvasVIew
+    public class CanvasActivity extends AppCompatActivity implements SensorEventListener {
+        //--------------------Creating the canvas-------------------------------------------------------
+        private CanvasView sketchPad; //creating the canvas
 
-public class CanvasActivity extends AppCompatActivity implements SensorEventListener {
-    //--------------------Creating the canvas-------------------------------------------------------
-    private CanvasView sketchPad; //creating the canvas
-
-    //---------------------------------Drawing dot locations and variables--------------------------
-    private int etchDrawRadius = 5;
-    private float etchX;
-    private float etchY;
-    private int movmentSpeed = 10;
-    //----------------------------------------------------------------------------------------------
-    //-----------------------sensor variables--------------------------------------------------------
-    private Timer timer = new Timer();
-    private Handler handler; //as timer tasks are not allowed to call other objects directly
+        //---------------------------------Drawing dot locations and variables--------------------------
+        private int etchDrawRadius = 20;
+        private float etchX;
+        private float etchY;
+        //----------------------------------------------------------------------------------------------
+        //-----------------------sensor variables--------------------------------------------------------
+        private Timer timer;
+        private Handler handler; //as timer tasks are not allowed to call other objects directly
 
 
-    private SensorManager sensorManager;
-    private Sensor tiltControls;
+        private SensorManager sensorManager;
+        private Sensor tiltControls;
 
-    private float tiltX;
-    private float tiltY;
-    private float tiltZ;
-    private long timeSinceSensorUpdate = 0;
-    //----------------------------------------------------------------------------------------------
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_canvas);
+        private float tiltX;
+        private float tiltY;
+        private float tiltZ;
+        private long timeSinceSensorUpdate = 0;
+        private int speed= 20;
+        //----------------------------------------------------------------------------------------------
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_canvas);
+            View window = getWindow().getDecorView(); // android host window
+            // uses bitwise OR to combine flags
+            window.setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | // hide nav buttons
+                            View.SYSTEM_UI_FLAG_FULLSCREEN        // hide status bar
+            );
 
-        View window = getWindow().getDecorView(); // android host window
 
-        // uses bitwise OR to combine flags
-        window.setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | // hide nav buttons
-                View.SYSTEM_UI_FLAG_FULLSCREEN        // hide status bar
-        );
+            //-----------------making etch follow the accelerometer values------------------------------
+            sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+            tiltControls = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+            sensorManager.registerListener(this, tiltControls, SensorManager.SENSOR_DELAY_NORMAL);
 
+            //-----Finding centre of the screen, and creating the canvas as soon as the app starts------
+            Display display = getWindowManager().getDefaultDisplay();
+            Point screenSize = new Point();
+            display.getSize(screenSize);
 
-        //-----------------making etch follow the accelerometer values------------------------------
-        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        tiltControls = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        sensorManager.registerListener(this, tiltControls, SensorManager.SENSOR_DELAY_NORMAL);
+            int screenWidth = screenSize.x;
+            int screenHeight = screenSize.y;
 
-        //-----Finding centre of the screen, and creating the canvas as soon as the app starts------
-        Display display = getWindowManager().getDefaultDisplay();
-        Point screenSize = new Point();
-        display.getSize(screenSize);
+            etchX = screenWidth / 2 - etchDrawRadius;
+            etchY = screenHeight / 2 - etchDrawRadius ; // finding the centre of the screen
 
-        int screenWidth = screenSize.x;
-        int screenHeight = screenSize.y;
+            sketchPad = new CanvasView(CanvasActivity.this);
+            setContentView(sketchPad);
+            //-----------------------------------------------------------------------------------------=
 
-        etchX = screenWidth / 2 - etchDrawRadius;
-        etchY = screenHeight / 2 - etchDrawRadius ; // finding the centre of the screen
+            //-------------------------Sensor code, and movment controls using timers-------------------
 
-        sketchPad = new CanvasView(CanvasActivity.this);
-        setContentView(sketchPad);
-        //-----------------------------------------------------------------------------------------=
-
-        //-------------------------Sensor code, and movment controls using timers-------------------
-
-       handler = new Handler()
-        {
-            @Override
-            public void handleMessage(Message message)   //this will send a message to canvas
-            {                                           //so the etch point position gets updated
-                sketchPad.invalidate();
-            }
-        };
-
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-
-                //TODO: implement logic to only move in straight lines, bunch of switches probably
-
-                    if (tiltX < 0)
-                    {
-                        tiltX += movmentSpeed;
-                    }
-                    else
-                    {
-                        tiltX -= movmentSpeed;
-                    }
-
-                    if ( tiltY < 100)
-                    {
-                        etchY += movmentSpeed;
-                    }
-                    else
-                    {
-                        etchY -= movmentSpeed;
-                    }
-            handler.sendEmptyMessage(0);
-            }
-        }, 0, 100); //this code will get executed every 100ms
-                                  // updating the position of the etching point every 100ms
-
-    }
-    //----------------------------sensor events----------------------------------------------------
-    @Override
-    public void onSensorChanged(SensorEvent sensorEvent) //sends information whenever sensor data
-    {                                                   // changes
-
-        Sensor tiltSensor = sensorEvent.sensor;
-
-        //TODO: Implement shake to clear
-
-        if (tiltSensor.getType() == Sensor.TYPE_ACCELEROMETER)
-        {
-            long currentTime = System.currentTimeMillis();
-            //need to limit how often sensor update as they are sensitive
-            if ((currentTime - timeSinceSensorUpdate)>100)
+            handler = new Handler()
             {
-                timeSinceSensorUpdate = currentTime;
+                @Override
+                public void handleMessage(Message message)   //this will send a message to canvas
+                {                                           //so the etch point position gets updated
+                    sketchPad.invalidate();
+                }
+            };
+            timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
 
-                tiltX = sensorEvent.values[0];
-                tiltX = sensorEvent.values[1];
-                tiltZ = sensorEvent.values[2];
+
+                   if (tiltX < 0)
+                   {
+                       etchX += speed;
+                   } else
+                   {
+                       etchX -= speed;
+                   }
+
+                   if (tiltY > 0 )
+                   {
+                       etchY += speed;
+                   }
+                   else
+                   {
+                       etchY -= speed  ;
+                   }
+                    handler.sendEmptyMessage(0);
+                }
+            }, 0, 100); //this code will get executed every 100ms
+            // updating the position of the etching point every 100ms
+
+        }
+        //----------------------------sensor events----------------------------------------------------
+        @Override
+        public void onSensorChanged(SensorEvent sensorEvent) //sents information whenever sensor data
+        {                                                   // changes
+
+            Sensor tiltSensor = sensorEvent.sensor;
+
+            if (tiltSensor.getType() == Sensor.TYPE_ACCELEROMETER)
+            {
+                long currentTime = System.currentTimeMillis();
+                //need to limit how often sensor update as they are sensitive
+                if ((currentTime - timeSinceSensorUpdate)>300)
+                {
+                    timeSinceSensorUpdate = currentTime;
+
+                    tiltX = sensorEvent.values[0];
+                    tiltY = sensorEvent.values[1];
+                    tiltZ = sensorEvent.values[2];
+                }
             }
         }
-    }
 
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int i)
-    {
-
-    }
-
-    @Override
-    public void onPointerCaptureChanged(boolean hasCapture)
-    {
-
-    }
-    //-------------------------------------------------------------------------------------------
-    //-------------------------Creating a paintable area-------------------------------------------
-    private class CanvasView extends View
-    {
-        //TODO: Add trail to the dot, so it actually sketches not just etches
-        private Paint etch;
-
-        public CanvasView (Context context)
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int i)
         {
-            super(context);
-            setFocusable(true);
 
-            etch = new Paint();
         }
-    //----------------------------------------------------------------------------------------------
 
-    //-----------------------------Setting stile for the etching brush------------------------------
-        public void onDraw ( Canvas screen)
+        @Override
+        public void onPointerCaptureChanged(boolean hasCapture)
         {
-            etch.setStyle(Paint.Style.FILL);
-            etch.setAntiAlias(true);
-            etch.setTextSize(30f);
 
-            screen.drawCircle(etchX, etchY, etchDrawRadius, etch);
         }
-    //----------------------------------------------------------------------------------------------
-    }
+        //-------------------------------------------------------------------------------------------
+        //-------------------------Creating a paintable area-------------------------------------------
+        private class CanvasView extends View
+        {
+            private Paint etch;
 
-}
+            public CanvasView (Context context)
+            {
+                super(context);
+                setFocusable(true);
+
+                etch = new Paint();
+            }
+            //----------------------------------------------------------------------------------------------
+
+            //-----------------------------Setting stile for the etching brush------------------------------
+            public void onDraw ( Canvas screen)
+            {
+                etch.setStyle(Paint.Style.FILL);
+                etch.setAntiAlias(true);
+                etch.setTextSize(30f);
+
+                screen.drawCircle(etchX, etchY, etchDrawRadius, etch);
+            }
+            //----------------------------------------------------------------------------------------------
+        }
+
+    }
